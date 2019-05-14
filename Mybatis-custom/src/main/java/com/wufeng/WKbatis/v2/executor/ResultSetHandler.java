@@ -3,8 +3,7 @@ package com.wufeng.WKbatis.v2.executor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.sql.SQLException;
 
 /**
  * @Author wangkai
@@ -21,7 +20,6 @@ public class ResultSetHandler {
             if (resultSet.next()) {
                 for (Field field : pojo.getClass().getDeclaredFields()) {
                     setValue(pojo, field, resultSet);
-
                 }
             }
         } catch (Exception e) {
@@ -41,8 +39,33 @@ public class ResultSetHandler {
     private void setValue(Object pojo, Field field, ResultSet rs) {
         try {
             Method setMethod = pojo.getClass().getMethod("set" + firstWordCapital(field.getName()),field.getType());
+//            setMethod.invoke(pojo,getResult(rs,field));
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 根骨反射判断类型，从ResultSet中去对应类型参数
+     * @param rs
+     * @param field
+     * @return
+     */
+    private Object getResult(ResultSet rs, Field field) throws SQLException {
+        Class type = field.getType();
+        String dataName = HumpToUnderline(field.getName());//驼峰转下划线
+        if (Integer.class == type){
+            return rs.getInt(dataName);
+        }else if (String.class == type){
+            return rs.getString(dataName);
+        }else if (Long.class == type){
+            return rs.getLong(dataName);
+        }else if (Boolean.class == type){
+            return rs.getBoolean(dataName);
+        }else if (Double.class == type){
+            return rs.getDouble(dataName);
+        }else{
+            return rs.getString(dataName);
         }
     }
 
@@ -73,7 +96,6 @@ public class ResultSetHandler {
                     sb.insert(i + temp, "_");
                     temp += 1;
                 }
-
             }
         }
         return sb.toString().toUpperCase();
