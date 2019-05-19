@@ -4,8 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.sql.SQLException;
 
 /**
  * @Author wangkai
@@ -22,7 +21,6 @@ public class ResultSetHandler {
             if (resultSet.next()) {
                 for (Field field : pojo.getClass().getDeclaredFields()) {
                     setValue(pojo, field, resultSet);
-
                 }
             }
         } catch (Exception e) {
@@ -88,7 +86,6 @@ public class ResultSetHandler {
 
     /**
      * Java驼峰命名转数据库下划线
-     * example:fParentNoLeader->F_PARENT_NO_LEADER
      *
      * @param para
      * @return
@@ -102,7 +99,6 @@ public class ResultSetHandler {
                     sb.insert(i + temp, "_");
                     temp += 1;
                 }
-
             }
         }
         return sb.toString().toUpperCase();
