@@ -14,6 +14,10 @@ public class ParameterHandler {
         this.psmt = statement;
     }
 
+    /**
+     * 从方法中获取参数，遍历设置SQL中的?占位符
+     * @param parameters
+     */
     public void setParameter(Object[] parameters) {
         try {
             //ParameterStatement的序号是从1开始的

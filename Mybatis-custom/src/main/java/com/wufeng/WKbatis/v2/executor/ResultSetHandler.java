@@ -3,13 +3,14 @@ package com.wufeng.WKbatis.v2.executor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * @Author wangkai
  * @CreateTime 2019/5/11 18:46
- * @Description
+ * @Description 结果集处理
  **/
 public class ResultSetHandler {
     public <T> T handle(ResultSet resultSet, Class type) {
@@ -40,10 +41,37 @@ public class ResultSetHandler {
      */
     private void setValue(Object pojo, Field field, ResultSet rs) {
         try {
-            Method setMethod = pojo.getClass().getMethod("set" + firstWordCapital(field.getName()),field.getType());
-        } catch (NoSuchMethodException e) {
+            Method setMethod = pojo.getClass().getMethod("set" + firstWordCapital(field.getName()), field.getType());
+            setMethod.invoke(pojo, getResult(rs, field));
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 根据发射判断类型，从ResultSet中区对应类型参数
+     *
+     * @param rs
+     * @param field
+     * @return
+     */
+    private Object getResult(ResultSet rs, Field field) throws SQLException {
+        Class type = field.getType();
+        String dataName = HumpToUnderline(field.getName());//驼峰转下划线
+        if (Integer.class == type) {
+            return rs.getInt(dataName);
+        } else if (String.class == type) {
+            return rs.getString(dataName);
+        } else if (Long.class == type) {
+            return rs.getLong(dataName);
+        } else if (Boolean.class == type) {
+            return rs.getBoolean(dataName);
+        } else if (Double.class == type) {
+            return rs.getDouble(dataName);
+        } else {
+            return rs.getString(dataName);
+        }
+
     }
 
     /**
@@ -60,6 +88,7 @@ public class ResultSetHandler {
 
     /**
      * Java驼峰命名转数据库下划线
+     * example:fParentNoLeader->F_PARENT_NO_LEADER
      *
      * @param para
      * @return

@@ -16,7 +16,7 @@ import java.sql.SQLException;
 public class StatementHandler {
     private ResultSetHandler resultSetHandler = new ResultSetHandler();
 
-    public <T> T query(String statement, Object[] parameter,Class pojo){
+    public <T> T query(String statement, Object[] parameter, Class pojo) {
         Connection conn = null;
         PreparedStatement preparedStatement = null;
         Object result = null;
@@ -28,15 +28,24 @@ public class StatementHandler {
             parameterHandler.setParameter(parameter);
             preparedStatement.execute();
 
-            result = resultSetHandler.handle(preparedStatement.getResultSet(),pojo);
+            result = resultSetHandler.handle(preparedStatement.getResultSet(), pojo);
+            return (T) result;
         } catch (Exception e) {
             e.printStackTrace();
+        }finally {
+            if (conn!=null){
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+        //只在try里面return会报错。
         return null;
     }
 
     /**
-     *
      * @return
      */
     private Connection getConnection() {
@@ -47,7 +56,7 @@ public class StatementHandler {
         Connection conn = null;
         try {
             Class.forName(driver);
-            conn = DriverManager.getConnection(url,username,password);
+            conn = DriverManager.getConnection(url, username, password);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } catch (SQLException e) {
