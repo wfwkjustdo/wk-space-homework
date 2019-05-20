@@ -111,9 +111,10 @@ public class Configuration {
         String mainPath = classPath + mapperPath;
         doPath(new File(mainPath));
         for (String className : classPaths) {
-            className = className.replace(classPath.replace("/", "\\").replaceFirst("\\\\", ""), "")
-                    .replace("\\", "").replace(".class", "");
+            className = className.replace(classPath, "")
+                    .replace("/", ".").replace(".class", "");
             Class<?> clazz = null;
+
             try {
                 clazz = Class.forName(className);
             } catch (ClassNotFoundException e) {
@@ -153,8 +154,13 @@ public class Configuration {
         return MAPPER_REGISTRY.getMapper(clazz,sqlSession);
     }
 
-    public String getMapperStatement(String statement) {
-        return null;
+    /**
+     * 根据statement ID获取SQL
+     * @param id
+     * @return
+     */
+    public String getMapperStatement(String id) {
+        return mappedStatements.get(id);
     }
 
     /**

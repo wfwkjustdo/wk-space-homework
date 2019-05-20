@@ -1,6 +1,10 @@
 package com.wufeng.WKbatis.v2;
 
 import com.wufeng.WKbatis.v2.executor.ResultSetHandler;
+import com.wufeng.WKbatis.v2.mapper.Blog;
+import com.wufeng.WKbatis.v2.mapper.BlogMapper;
+import com.wufeng.WKbatis.v2.session.DefaultSqlSession;
+import com.wufeng.WKbatis.v2.session.SqlSessionFactory;
 
 /**
  * @Author wangkai
@@ -10,8 +14,12 @@ import com.wufeng.WKbatis.v2.executor.ResultSetHandler;
 public class TestMybatis {
 
     public static void main(String[] args) {
-        String temp  = "fParentNoLeader";
-        String temp1 = ResultSetHandler.HumpToUnderline(temp);
-        System.out.println(temp1);
+        SqlSessionFactory factory = new SqlSessionFactory();
+        DefaultSqlSession sqlSession = factory.build().opSqlSession();
+
+        //获取MapperProxy代理
+        BlogMapper mapper = sqlSession.getMapper(BlogMapper.class);
+        Blog blog = mapper.selectBlogById(1);
+        System.out.println("第一次查询："+blog);
     }
 }

@@ -17,17 +17,17 @@ public class DefaultSqlSession {
         this.executor = configuration.newExecutor();
     }
 
-    public  Configuration getConfiguration(){
+    public Configuration getConfiguration() {
         return configuration;
     }
 
-    public <T> T getMapper(Class<T> clazz){
-        return configuration.getMapper(clazz,this);
+    public <T> T getMapper(Class<T> clazz) {
+        return configuration.getMapper(clazz, this);
     }
 
-    public <T> T selectOne(String statement,Object[] parameter,Class pojo){
+    public <T> T selectOne(String statement, Object[] parameter, Class pojo) {
         String sql = getConfiguration().getMapperStatement(statement);
         //打印代理对象时会自动调用toString()方法，触发invoke()
-        return executor.query(sql,parameter,pojo);
+        return executor.query(sql, parameter, pojo);
     }
 }
