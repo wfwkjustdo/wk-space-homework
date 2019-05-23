@@ -4,7 +4,9 @@ import com.wufeng.WKbatis.v2.TestMybatis;
 import com.wufeng.WKbatis.v2.annotation.Entity;
 import com.wufeng.WKbatis.v2.annotation.Select;
 import com.wufeng.WKbatis.v2.binding.MapperRegistry;
+import com.wufeng.WKbatis.v2.executor.CachingExecutor;
 import com.wufeng.WKbatis.v2.executor.Executor;
+import com.wufeng.WKbatis.v2.executor.SimpleExecutor;
 import com.wufeng.WKbatis.v2.plugin.InterceptorChain;
 
 import java.io.File;
@@ -111,8 +113,12 @@ public class Configuration {
         String mainPath = classPath + mapperPath;
         doPath(new File(mainPath));
         for (String className : classPaths) {
+            //在windows电脑上面的语句
+            className = className.replace(classPath.replace("/","\\").replaceFirst("\\\\",""),"").replace("\\",".").replace(".class","");
+            /* //在mac电脑上面的语句
             className = className.replace(classPath, "")
                     .replace("/", ".").replace(".class", "");
+            * */
             Class<?> clazz = null;
 
             try {
@@ -146,8 +152,25 @@ public class Configuration {
         }
     }
 
+    /**
+     * 创建执行器，当开启缓存时使用缓存修饰
+     * 当配置插件时，使用插件代理
+     * @return
+     */
     public Executor newExecutor() {
-        return null;
+        Executor executor = null;
+        if (properties.getString("cache.enabled").equals("true")){
+            executor = new CachingExecutor(new SimpleExecutor());
+        }else{
+            executor = new SimpleExecutor();
+        }
+
+        //目前只拦截了Executor，所有的插件都对Executor进行代理，没有对拦截类和方法签名进行判断
+        if (interceptorChain.hasPlugin()){
+
+        }
+
+        return executor;
     }
 
     public <T> T getMapper(Class<T> clazz, DefaultSqlSession sqlSession) {
@@ -159,7 +182,7 @@ public class Configuration {
      * @param id
      * @return
      */
-    public String getMapperStatement(String id) {
+    public String getMappedStatement(String id) {
         return mappedStatements.get(id);
     }
 

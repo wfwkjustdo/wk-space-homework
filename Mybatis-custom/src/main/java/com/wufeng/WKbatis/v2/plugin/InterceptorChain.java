@@ -6,4 +6,7 @@ package com.wufeng.WKbatis.v2.plugin;
  * @Description
  **/
 public class InterceptorChain {
+    public boolean hasPlugin() {
+        return false;
+    }
 }

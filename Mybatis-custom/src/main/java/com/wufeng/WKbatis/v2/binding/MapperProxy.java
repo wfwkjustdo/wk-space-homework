@@ -21,14 +21,14 @@ public class MapperProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        String mappInterface = method.getDeclaringClass().getName();
+        String mapperInterface = method.getDeclaringClass().getName();
         String methodName = method.getName();
-        String statementId = mappInterface + "." + methodName;
+        String statementId = mapperInterface + "." + methodName;
         //如果根据接口类型+方法名能找到映射的SQL，则执行SQL
-        if(sqlSession.getConfiguration().hasStatement(statementId)){
-            return sqlSession.selectOne(statementId,args,object);
+        if (sqlSession.getConfiguration().hasStatement(statementId)) {
+            return sqlSession.selectOne(statementId, args, object);
         }
         //否则执行被代理对象的原方法
-        return method.invoke(proxy,args);
+        return method.invoke(proxy, args);
     }
 }

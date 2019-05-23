@@ -22,7 +22,7 @@ public class SqlSessionFactory {
      * 获取DefaultSqlSession
      * @return
      */
-    public DefaultSqlSession opSqlSession(){
+    public DefaultSqlSession openSqlSession(){
         return new DefaultSqlSession(configuration);
     }
 }
