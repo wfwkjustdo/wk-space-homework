@@ -167,7 +167,7 @@ public class Configuration {
 
         //目前只拦截了Executor，所有的插件都对Executor进行代理，没有对拦截类和方法签名进行判断
         if (interceptorChain.hasPlugin()){
-
+            return interceptorChain.pluginAll(executor);
         }
 
         return executor;
