@@ -1,6 +1,5 @@
 package com.wufeng.WKbatis.v2;
 
-import com.wufeng.WKbatis.v2.executor.ResultSetHandler;
 import com.wufeng.WKbatis.v2.mapper.Blog;
 import com.wufeng.WKbatis.v2.mapper.BlogMapper;
 import com.wufeng.WKbatis.v2.session.DefaultSqlSession;
