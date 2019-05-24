@@ -7,6 +7,7 @@ import com.wufeng.WKbatis.v2.binding.MapperRegistry;
 import com.wufeng.WKbatis.v2.executor.CachingExecutor;
 import com.wufeng.WKbatis.v2.executor.Executor;
 import com.wufeng.WKbatis.v2.executor.SimpleExecutor;
+import com.wufeng.WKbatis.v2.plugin.Interceptor;
 import com.wufeng.WKbatis.v2.plugin.InterceptorChain;
 
 import java.io.File;
@@ -70,19 +71,36 @@ public class Configuration {
             parsingClass(mapper);
         }
 
+        //3.解析插件，可配置多个插件
+        String pluginPathValue = properties.getString("plugin.path");
+        String[] pluginPaths = pluginPathValue.split(",");
+        if (pluginPaths != null) {
+            //将插件添加到interceptorChain中
+            for (String plugin : pluginPaths) {
+                Interceptor interceptor = null;
+                try {
+                    interceptor = (Interceptor) Class.forName(plugin).newInstance();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                interceptorChain.addInterceptor(interceptor);
+            }
+        }
+
     }
 
     /**
      * 解析Mapper接口上配置的注解（SQL语句）
+     *
      * @param mapper
      */
     private void parsingClass(Class<?> mapper) {
         //1.解析类上的注解
         //如果有@Entity注解，说明时查询数据库的接口
-        if (mapper.isAnnotationPresent(Entity.class)){
+        if (mapper.isAnnotationPresent(Entity.class)) {
             for (Annotation annotation : mapper.getAnnotations()) {
-                if (annotation.annotationType().equals(Entity.class)){
-                    MAPPER_REGISTRY.addMapper(mapper,((Entity)annotation).value());
+                if (annotation.annotationType().equals(Entity.class)) {
+                    MAPPER_REGISTRY.addMapper(mapper, ((Entity) annotation).value());
                 }
             }
         }
@@ -90,12 +108,12 @@ public class Configuration {
         //2.解析方法上面的注解
         Method[] methods = mapper.getMethods();
         for (Method method : methods) {
-            if (method.isAnnotationPresent(Select.class)){
-                for (Annotation annotation: method.getDeclaredAnnotations()) {
-                    if (annotation.annotationType().equals(Select.class)){
+            if (method.isAnnotationPresent(Select.class)) {
+                for (Annotation annotation : method.getDeclaredAnnotations()) {
+                    if (annotation.annotationType().equals(Select.class)) {
                         //注册接口类型+方法名和SQL语句的映射关系
-                        String statement = method.getDeclaringClass().getName()+"."+method.getName();
-                        mappedStatements.put(statement,((Select)annotation).value());
+                        String statement = method.getDeclaringClass().getName() + "." + method.getName();
+                        mappedStatements.put(statement, ((Select) annotation).value());
                     }
                 }
             }
@@ -114,7 +132,7 @@ public class Configuration {
         doPath(new File(mainPath));
         for (String className : classPaths) {
             //在windows电脑上面的语句
-            className = className.replace(classPath.replace("/","\\").replaceFirst("\\\\",""),"").replace("\\",".").replace(".class","");
+            className = className.replace(classPath.replace("/", "\\").replaceFirst("\\\\", ""), "").replace("\\", ".").replace(".class", "");
             /* //在mac电脑上面的语句
             className = className.replace(classPath, "")
                     .replace("/", ".").replace(".class", "");
@@ -155,30 +173,32 @@ public class Configuration {
     /**
      * 创建执行器，当开启缓存时使用缓存修饰
      * 当配置插件时，使用插件代理
+     *
      * @return
      */
     public Executor newExecutor() {
         Executor executor = null;
-        if (properties.getString("cache.enabled").equals("true")){
+        if (properties.getString("cache.enabled").equals("true")) {
             executor = new CachingExecutor(new SimpleExecutor());
-        }else{
+        } else {
             executor = new SimpleExecutor();
         }
 
         //目前只拦截了Executor，所有的插件都对Executor进行代理，没有对拦截类和方法签名进行判断
-        if (interceptorChain.hasPlugin()){
-            return interceptorChain.pluginAll(executor);
+        if (interceptorChain.hasPlugin()) {
+            return (Executor) interceptorChain.pluginAll(executor);
         }
 
         return executor;
     }
 
     public <T> T getMapper(Class<T> clazz, DefaultSqlSession sqlSession) {
-        return MAPPER_REGISTRY.getMapper(clazz,sqlSession);
+        return MAPPER_REGISTRY.getMapper(clazz, sqlSession);
     }
 
     /**
      * 根据statement ID获取SQL
+     *
      * @param id
      * @return
      */
@@ -188,6 +208,7 @@ public class Configuration {
 
     /**
      * 根据statement判断是否存在映射的SQL
+     *
      * @param statementName
      * @return
      */
