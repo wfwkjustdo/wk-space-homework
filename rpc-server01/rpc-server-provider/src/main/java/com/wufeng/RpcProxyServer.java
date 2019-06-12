@@ -12,16 +12,17 @@ import java.util.concurrent.Executors;
  * @Description
  */
 public class RpcProxyServer {
+    //定义一个线程池，每接受一个请求分别使用一个线程进行接收处理
     ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public void publish(Object service,int port){
+    public void publisher(Object service,int port){
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(port);
             while (true){
                 Socket socket = serverSocket.accept();//BIO处理
                 //每一个socket交给一个processorHandler来处理
-                executorService.execute(new ProcessorHandler(socket,port));
+                executorService.execute(new ProcessorHandler(socket,service));
             }
         } catch (IOException e) {
             e.printStackTrace();

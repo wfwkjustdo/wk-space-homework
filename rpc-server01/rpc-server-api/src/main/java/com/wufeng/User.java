@@ -1,11 +1,13 @@
 package com.wufeng;
 
+import java.io.Serializable;
+
 /**
  * @Author wangkai
  * @Create 2019/6/10-20:31.
  * @Description
  */
-public class User {
+public class User implements Serializable {
     private String name;
     private int age;
 

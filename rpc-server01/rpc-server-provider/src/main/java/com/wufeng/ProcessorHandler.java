@@ -74,7 +74,7 @@ public class ProcessorHandler implements Runnable {
         }
 
         Class clazz = Class.forName(request.getClassName());//跟去请求的类进行加载
-        Method method = clazz.getMethod(request.getClassName(), types);//sayHello、saveHello找到这个类中的的方法
+        Method method = clazz.getMethod(request.getMethodName(), types);//sayHello、saveHello找到这个类中的的方法
         Object result = method.invoke(service, args);//HelloServiceImpl进行反射
         return result;
     }
