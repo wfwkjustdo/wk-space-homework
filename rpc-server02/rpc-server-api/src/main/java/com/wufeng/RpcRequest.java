@@ -1,14 +1,16 @@
 package com.wufeng;
 
+import java.io.Serializable;
+
 /**
  * @Author wangkai
  * @CreateTime 2019-06-16 22:43
  **/
-public class RpcRequest {
+public class RpcRequest implements Serializable {
 
     private String className;
     private String methodName;
-    private Object[] patameters;
+    private Object[] parameters;
 
     private String version;
 
@@ -28,12 +30,12 @@ public class RpcRequest {
         this.methodName = methodName;
     }
 
-    public Object[] getPatameters() {
-        return patameters;
+    public Object[] getParameters() {
+        return parameters;
     }
 
-    public void setPatameters(Object[] patameters) {
-        this.patameters = patameters;
+    public void setParameters(Object[] parameters) {
+        this.parameters = parameters;
     }
 
     public String getVersion() {
