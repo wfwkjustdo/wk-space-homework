@@ -2,9 +2,11 @@ package com.wufeng.netty.io.nio.chat;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -62,7 +64,44 @@ public class NIOChatServer {
     }
 
 
-    private void process(SelectionKey key) {
+    private void process(SelectionKey key) throws IOException {
+        if (key.isAcceptable()){
+            ServerSocketChannel server = (ServerSocketChannel) key.channel();
+            SocketChannel client = server.accept();
+            //非阻塞式模式
+            client.configureBlocking(false);
+            //注册选择器，并设置为读取模式，收到一个连接请求，然后起一个SocketChannel，并注册到selector上，之后这个连接的数据，
+            // 就由这个SocketChannel处理
+            client.register(selector,SelectionKey.OP_READ);
+
+            //将次对应的channel设置为准备接受其他客户端请求
+            key.interestOps(SelectionKey.OP_ACCEPT);
+//            System.out.println("有客户端连接，IP地址为："+client.getRemoteAddress());
+            client.write(charset.encode("请输入你的昵称"));
+
+            //处理来自客户端的数据读取请求
+            if(key.isReadable()){
+                //返回该SelectionKey对应的Channel，其中有数据需要读取
+                SocketChannel client1 = (SocketChannel)key.channel();
+                ByteBuffer buff = ByteBuffer.allocate(1024);
+                StringBuilder content = new StringBuilder();
+                try{
+                    while (client1.read(buff)>0){
+                        buff.flip();
+                        content.append(charset.decode(buff));
+                    }
+    //                System.out.println("从IP地址为：" + client1.getRemoteAddress() + "的获取到消息: " + content);
+                    //将次对应的channel设置为准备下一次接受数据
+                    key.interestOps(SelectionKey.OP_READ);
+
+                }catch (IOException io){
+                    key.cancel();
+                    if(key.channel() != null) {
+                        key.channel().close();
+                    }
+                }
+            }
+        }
 
     }
 }
