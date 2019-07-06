@@ -3,10 +3,7 @@ package com.wufeng.netty.io.nio.chat;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,8 +97,34 @@ public class NIOChatServer {
                         key.channel().close();
                     }
                 }
+                if(content.length()>0){
+                    String[] arrayContent = content.toString().split(USER_CONTENT_SPILIT);
+                    //注册用户
+                    if(arrayContent!=null && arrayContent.length==1){
+                        String nickName = arrayContent[0];
+                        if (users.contains(nickName)){
+                            client1.write(charset.encode(USER_EXIST));
+                        }else{
+                            users.add(nickName);
+                            int onlineCount = onlineCount();
+
+                        }
+                    }
+                }
             }
         }
 
+    }
+
+    private int onlineCount() {
+        int res = 0;
+        for(SelectionKey key : selector.keys()){
+            Channel target = key.channel();
+
+            if(target instanceof SocketChannel){
+                res++;
+            }
+        }
+        return res;
     }
 }
